@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+</head>
+<style>
+  #app {
+    margin: 0 auto;
+    width: 500px;
+  }
+  .box {
+    border: 1px solid #ccc;
+    width: 400px;
+    height: 30px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+</style>
+<body>
+  <div id="app">
+    <div v-for="(item, index) in tableData" :key="index" class="box">
+      <div>{{item.address}}</div>
+      <div>作者：{{item.userName}} 性别：{{item.sex}}</div>
+    </div>
+    <el-pagination
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+      :current-page="pageInfo.currentPage"
+      :page-sizes="[10, 20, 30, 50]"
+      :page-size="100"
+      layout="total, sizes, prev, pager, next, jumper"
+      :total="pageInfo.total">
+    </el-pagination>
+  </div>
+</body>
+ <!-- import Vue before Element -->
+ <script src="https://unpkg.com/vue/dist/vue.js"></script>
+ <!-- import JavaScript -->
+ <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+ <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+ <script>
+  new Vue({
+    el: '#app',
+    data: function() {
+      return {
+        tableData: [],
+        pageInfo: {
+          pageIndex: 1,
+          currentPage: 1,
+          total: 0
+        }
+      }
+    },
+    created () {
+      this.getData()
+    },
+    methods: {
+      getData () {
+        axios.get(`http://yapi.luckly-mjw.cn/mock/50/test/users?pageIndex=${this.pageInfo.pageIndex}`).then(res => {
+          let {list, page} = res.data.data
+          if (list.length) {
+            this.tableData = list
+            this.pageInfo.total = Number(page.itemSum)
+          }
+        }).catch(err => {
+          console.log(err)
+        })
+      },
+      handleSizeChange (val) {
+        this.pageInfo.pageIndex = val
+        this.getData()
+      },
+      handleCurrentChange (val) {
+        this.pageInfo.currentPage = val
+        this.getData()
+      }
+    },
+  })
+</script>
+</html>
